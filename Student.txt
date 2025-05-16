@@ -1,0 +1,71 @@
+public class Student {
+
+    //Student ID	Grade	On Campus Parking Spot?	Off Campus Periods?	Class Rank Group 	Num GPA Group	Class Rank Band	Num GPA Band	GPA + Rank Band	Total Abs	Total Tdy
+    // 0 id, 1 grade, 2 on campus, 3 dual/work,6 gpa + rank number, 9 absences
+
+    private int id;
+    private int grade;
+    private boolean hasParking;
+    private boolean isDual;
+    private int rankBand;
+    private int abs;
+    private int score;
+
+    public Student(int id, int grade, boolean hasParking, boolean isDual, int r, int abs)
+    {
+        this.id = id;
+        this.grade = grade;
+
+        this.hasParking = hasParking;
+        this.isDual = isDual;
+
+        rankBand = r;
+        this.abs = abs;
+
+        score = calculateScore();
+    }
+
+    public int getId()
+    {
+        return id;
+    }
+
+    public int getGrade()
+    {
+        return grade;
+    }
+
+    public boolean getHasParking()
+    {
+        return hasParking;
+    }
+
+    public boolean getIsDual()
+    {
+        return isDual;
+    }
+
+    public int getRankBand(){
+        return rankBand;
+    }
+    public int getAbs(){
+        return abs;
+    }
+
+    public String toString() {
+        return "ID: " + id + " Grade: " + grade + " Has Parking? " + hasParking+ " isDual: " + isDual + " Rank band? " +rankBand +" Absences: " + abs;
+    }
+
+    public int calculateScore(){
+        int score = 0;
+        if (grade == 12){
+            score += 50;
+        } //12th graders above all 11th
+        score += 27-rankBand; //max is 25, min is 0
+        if (abs < 100) {
+            score += 25; //basically a boolean, if you have more you're automatically out
+        }
+        return score;
+    }
+
+}

@@ -1,0 +1,250 @@
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Scanner;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class studentMatcher {
+
+    private int spot;
+    private ArrayList<Student> students;
+    private static int s;
+    private static int a;
+    private static int b;
+    private static int c;
+    private static int d;
+    private static int f;
+    private static int m;
+    private String currTier;
+
+
+    ArrayList<Integer> listS = new ArrayList<>();
+    ArrayList<Integer> listA = new ArrayList<>();
+    ArrayList<Integer> listB = new ArrayList<>();
+    ArrayList<Integer> listC = new ArrayList<>();
+    ArrayList<Integer> listD = new ArrayList<>();
+    ArrayList<Integer> listF = new ArrayList<>();
+    ArrayList<Integer> listMaroon = new ArrayList<>();
+
+    //Student ID	Grade	On Campus Parking Spot?	Off Campus Periods?	Class Rank Group 	Num GPA Group	Class Rank Band	Num GPA Band	GPA + Rank Band	Total Abs	Total Tdy
+    // 0 id, 1 grade, 2 on campus, 3 dual/work,7 gpa + rank number, 8 absences
+
+
+    public studentMatcher(String filePath) throws IOException
+    {
+        students = new ArrayList<Student>();
+        Scanner s = new Scanner(new File(filePath));
+
+        int i = 0;
+        while (s.hasNext())
+        {
+                String[] info = s.nextLine().split(",");
+                //System.out.println(info[0]);
+                // make a student and add to students
+
+                boolean hasP = false;
+                if (info[2].equals("Yes"))
+                {
+                    hasP = true;
+                }
+
+                boolean isD = false;
+                if (info[3].equals("Yes"))
+                {
+                    isD = true;
+                }
+
+            if (i != 0) {
+                students.add(new Student(Integer.parseInt(info[0]), Integer.parseInt(info[1]), hasP, isD, Integer.parseInt(info[4]), Integer.parseInt(info[5])));
+            }
+            i++;
+        }
+        s.close();
+
+        assignTiers();
+        currTier = "s";
+    }
+
+    public Student getStudent(int i)
+    {
+        return students.get(i);
+    }
+
+    public HashMap<Integer, Student> sortParking()
+    {
+        currTier = "s";
+        HashMap<Integer,Student> lot = new HashMap<Integer, Student>();
+        //top 50 go into s tier
+        int currScore = 100; //decrement as everyone in the score is being placed
+
+        //first round- fill s tier and maroon and make a copy of the not removed students
+
+        ArrayList<Student> students_left = new ArrayList<>();
+
+        for (int i = 0; i < students.size(); i++)
+        {
+            if (students.get(i).getRankBand() == 2 && students.get(i).getGrade() == 12)
+            {
+                fill(lot, students.get(i), "z"); // if this is full, return a -1? // if fill doesn't work move onto the next loop
+            }
+            else if(students.get(i).getIsDual() && m < listMaroon.size())
+            {
+                fill(lot, students.get(i), "m");
+            }
+
+            else
+            {
+                students_left.add(students.get(i));
+            }
+        }
+
+        ArrayList<Student> juniors = new ArrayList<>();
+
+        //next, sort seniors by score and fill them
+
+        // CALL METHOD TO SORT THE STUDENTS_LEFT !
+
+        //Collections.sort(students_left);
+        for(int si = 100; si >= 0; si--)
+        {
+            for (int i = 0; i < students_left.size(); i++) {
+                if (students_left.get(i).getGrade() == 12 && students_left.get(i).calculateScore() == si) {
+                    fill(lot, students_left.get(i), "z");
+                } else if (students_left.get(i).getGrade() == 11){
+                    juniors.add(students.get(i));
+                }
+            }
+        }
+
+        // next, sort juniors by score and fill them
+        for(int si = 50; si >=0; si--)
+        {
+            for (int i = 0; i < juniors.size(); i++) {
+                if (juniors.get(i).calculateScore() == si) {
+                    fill(lot, juniors.get(i), "z");
+                }
+            }
+        }
+
+        return lot;
+    }
+
+
+
+    // keep account of index of tier list
+    public void fill(HashMap<Integer,Student> lot, Student n, String tier)
+    {
+        //currTier will be checked too
+        String order = "sabcdf";
+        //write down the length of every tier
+
+        int spot = 0;
+        //based on the static int, we know what spot we are at in the
+
+        if (tier.equals("m"))
+        {
+        spot = listMaroon.get(m);
+        m++;
+        }
+        else if (tier.equals("z"))
+        {
+            if (currTier.equals("s") && s < listS.size())
+            {
+                spot = listS.get(s);
+                System.out.println("s " + s);
+                s++;
+                if (s == listS.size())
+                {
+                    currTier = "a";
+                }
+            }
+            else if (currTier.equals("a") && a < listA.size())
+            {
+                spot = listA.get(a);
+                System.out.println("a " + a);
+                a++;
+                if (a == listA.size())
+                {
+                    currTier = "b";
+                }
+            }
+            else if (currTier.equals("b") && b < listB.size())
+            {
+                spot = listB.get(b);
+                System.out.println("b " + b);
+                b++;
+                if (b == listB.size())
+                {
+                    currTier = "c";
+                }
+            }
+            else if (currTier.equals("c") && c < listC.size())
+            {
+                spot = listC.get(c);
+                System.out.println("c " + c);
+                c++;
+                if (c == listC.size())
+                {
+                    currTier = "d";
+                }
+            }
+            else if (currTier.equals("d") && d < listD.size())
+            {
+                spot = listD.get(d);
+                System.out.println("d " + d);
+                d++;
+                if (d == listD.size())
+                {
+                    currTier = "f";
+                }
+            }
+            else if (currTier.equals("f") && f < listF.size())
+            {
+                spot = listF.get(f);
+                System.out.println("f " + f);
+                f++;
+            }
+        }
+        System.out.println("spoT: " + spot);
+        if (spot != 0) {
+            lot.put(spot, n);
+        }
+        //System.out.println(lot);
+    }
+
+    public void assignTiers()
+    {
+        for (int i = 1; i < 589; i++) {
+            if ((i >= 1 && i < 16) || (i >= 107 && i < 126) || (i >= 246 && i < 262)) {
+                listS.add(i);
+            }
+            if ((i >= 16 && i < 31) || (i >= 91 && i < 107) || (i >= 126 && i < 155)
+                    || (i>=230 && i< 246) || (i>=262 && i< 297)){
+                listA.add(i);
+            }
+            if ((i >= 31 && i < 48) || (i >= 76 && i < 91) || (i >= 155 && i < 170)
+                    || (i >= 214 && i < 230)|| (i >= 297 && i < 313)) {
+                listB.add(i);
+            }
+            if ((i >= 48 && i < 58) || (i >= 65 && i < 76) || (i >= 170 && i < 180)
+                    || (i >= 199 && i < 214) || (i >= 313 && i < 328) || (i >= 341 && i < 365)
+                    || (i >= 387 && i < 396)) {
+                listC.add(i);
+            }
+            if ((i >= 58 && i < 65) || (i >= 193 && i < 199) || (i >= 328 && i < 341)
+                    || (i >= 365 && i < 370)) {
+                listD.add(i);
+            }
+            if ((i >= 180 && i < 193) || (i >= 370 && i <= 386)) {
+                listF.add(i);
+            }
+            if ((i >= 551 && i <= 588)) {
+                listMaroon.add(i);
+            }
+        }
+        //System.out.println(listS);
+    }
+
+}
+
